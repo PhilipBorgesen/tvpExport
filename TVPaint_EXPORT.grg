@@ -105,6 +105,8 @@ main()
 // separated by '/', e.g. "<sq####> sq0111/<sh####> sh0111/<v###> v001/<creator> lz".
 // By adding or removing <placeholder>/value pairs you can customize which placeholders
 // to substitute based on values from the filename. Placeholders MUST NOT contain spaces.
+// If the returned value is an empty string, the remainder of the script will think the
+// function has failed and the script will abort.
 // 
 FUNCTION parseFilename(filename) // (string) -> "<sq####> A/<sh####> B/<v###> C/<creator> D"
     LOCAL num sq sh v creator
@@ -132,11 +134,6 @@ FUNCTION parseFilename(filename) // (string) -> "<sq####> A/<sh####> B/<v###> C/
     v = var(5)
 
     num = NewParse(var(6), ".")
-
-    IF num != 2 || CMP("tvpp", val(2)) == 0
-        tvWarn("ERROR: Filename doesn't end with file extension '.tvpp'")
-    END
-
     creator = var(1)
 
     RETURN sqPlaceholder" "sq"/"shPlaceholder" "sh"/"vPlaceholder" "v"/"creatorPlaceholder" "creator
@@ -167,6 +164,10 @@ FUNCTION getBaseTemplate() // () -> string
     END
     
     res = parseFilename(baseName)
+    IF LEN(res) == 0
+        RETURN ""
+    END
+    
     num = NewParse(res, "/")
 
     template = fileNameTemplate
